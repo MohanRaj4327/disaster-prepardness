@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafePublic - Public Disaster Preparedness & Citizen Grievance Portal</title>
+  <meta name="description" content="National & State Disaster Management Public Portal: Real-time hazard grievance reporting, interactive disaster relief maps, department dispatch, and public survival learning.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Leaflet Map CSS for Real Interactive Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+  <!-- Real-time Emergency Disaster Broadcast Siren Banner -->
+  <div id="emergency-banner" class="emergency-banner">
+    <div class="banner-inner">
+      <div class="banner-badge"><span class="pulse-dot"></span> <span id="banner-severity">CRITICAL RED ALERT</span></div>
+      <div class="banner-content">
+        <strong id="banner-title">CYCLONE 'VARUNA' EVACUATION ALERT</strong>: 
+        <span id="banner-message">Severe Cyclone with 130 km/h wind gusts approaching within 18 hours. Coastal & low-lying residents must evacuate to designated High-Ground Relief Shelters immediately.</span>
+      </div>
+      <div class="banner-actions">
+        <button id="banner-view-map-btn" class="btn btn-sm btn-ghost-light">Locate Open Shelters on Map</button>
+        <button id="banner-siren-toggle-btn" class="btn btn-sm btn-ghost-light" title="Toggle Emergency Siren Sound">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          Siren Audio
+        </button>
+        <button id="banner-dismiss-btn" class="banner-close" aria-label="Dismiss Alert">&times;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navigation Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M12 8v4"/>
+            <path d="M12 16h.01"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>SafePublic</h1>
+          <span class="brand-sub">Disaster Preparedness & Citizen Grievance Portal</span>
+        </div>
+        <span class="gov-badge">Disaster Management Authority</span>
+      </div>
+
+      <nav class="nav-links">
+        <button class="nav-btn active" data-tab="dashboard-tab" id="nav-dashboard">Dashboard</button>
+        <button class="nav-btn" data-tab="map-tab" id="nav-map">Live Disaster Map</button>
+        <button class="nav-btn" data-tab="complaints-tab" id="nav-complaints">Report & Track Grievance</button>
+        <button class="nav-btn" data-tab="departments-tab" id="nav-departments">Response Departments</button>
+        <button class="nav-btn" data-tab="learning-tab" id="nav-learning">Public Learning & Survival</button>
+        <button class="nav-btn" data-tab="quizzes-tab" id="nav-quizzes">Safety Certification</button>
+        <button class="nav-btn" data-tab="ai-tab" id="nav-ai">24/7 AI Emergency Advisor</button>
+      </nav>
+
+      <div class="header-controls">
+        <!-- Quick Emergency Hotline Dropdown -->
+        <div class="sos-dropdown-wrapper">
+          <button id="sos-trigger-btn" class="btn btn-danger sos-btn">
+            <span class="sos-pulse"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span>Emergency Helplines</span>
+          </button>
+          <div id="sos-menu" class="sos-menu hidden">
+            <div class="sos-menu-header">Toll-Free Disaster Hotlines (24/7)</div>
+            <a href="tel:112" class="sos-item">
+              <span class="sos-num">112</span>
+              <span class="sos-label">National Unified Emergency Services</span>
+            </a>
+            <a href="tel:1070" class="sos-item">
+              <span class="sos-num">1070</span>
+              <span class="sos-label">State Disaster Management Operations Center</span>
+            </a>
+            <a href="tel:108" class="sos-item">
+              <span class="sos-num">108</span>
+              <span class="sos-label">NDRF / SDRF Disaster Rescue & Boats</span>
+            </a>
+            <a href="tel:101" class="sos-item">
+              <span class="sos-num">101</span>
+              <span class="sos-label">Fire Rescue & Chemical Hazmat Control</span>
+            </a>
+            <a href="tel:102" class="sos-item">
+              <span class="sos-num">102</span>
+              <span class="sos-label">Ambulance & Emergency Medical Triage</span>
+            </a>
+            <a href="tel:1913" class="sos-item">
+              <span class="sos-num">1913</span>
+              <span class="sos-label">Municipal Corporation Flood Water Drainage</span>
+            </a>
+            <a href="tel:9498794987" class="sos-item">
+              <span class="sos-num">94987...</span>
+              <span class="sos-label">Electricity Board Power Cutoff & Hazard Line</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Role Persona Selector -->
+        <div class="role-selector">
+          <label for="current-role-select" class="sr-only">Select User Role</label>
+          <select id="current-role-select" class="role-dropdown" aria-label="Portal Persona Switcher">
+            <option value="citizen">Public Citizen (Aarav Patel)</option>
+            <option value="officer">Department Responder (Commander Rajesh - NDRF)</option>
+            <option value="admin">Disaster Administrator (Dr. Radhakrishnan, IAS)</option>
+          </select>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button id="theme-toggle-btn" class="icon-btn" title="Toggle Theme" aria-label="Toggle Theme">
+          <svg id="theme-icon-sun" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg id="theme-icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="app-main">
+
+    <!-- =====================================================================
+         TAB 1: PUBLIC DASHBOARD & EMERGENCY OVERVIEW
+         ===================================================================== -->
+    <section id="dashboard-tab" class="tab-pane active">
+      <div class="hero-welcome">
+        <div class="welcome-text">
+          <span class="user-greeting" id="user-greeting-name">Public Citizen Portal • State Emergency System</span>
+          <h2 class="hero-title">Public Disaster Response & Hazard Grievance Command</h2>
+          <p class="hero-subtitle">If any disaster (flood, fire, cyclone, building crack, gas leak, power hazard) is threatening your community, submit an emergency grievance immediately to dispatch response teams, find open high-ground relief shelters, and learn vital survival protocols.</p>
+        </div>
+        
+        <!-- Live Meteorological Radar Widget (Open-Meteo Integration) -->
+        <div class="readiness-gauge-card">
+          <div class="live-weather-box" id="live-weather-card">
+            <div class="weather-top">
+              <span class="weather-badge">LIVE METEOROLOGY</span>
+              <button id="refresh-weather-btn" class="btn-icon-subtle" title="Refresh Live Weather">🔄</button>
+            </div>
+            <div class="weather-temp-row">
+              <span class="weather-temp" id="weather-temp">28°C</span>
+              <span class="weather-condition" id="weather-desc">Rain & Gusts</span>
+            </div>
+            <div class="weather-details-row">
+              <span>💨 Wind: <strong id="weather-wind">48 km/h</strong></span>
+              <span>🌧️ Rain: <strong id="weather-rain">18 mm/h</strong></span>
+            </div>
+            <div class="weather-risk-meter">
+              <span class="risk-label">Flood & Storm Hazard Index:</span>
+              <span class="badge-danger" id="weather-hazard-badge">HIGH ALERT</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Banners -->
+      <div class="dashboard-action-row">
+        <div class="action-tile tile-red" id="tile-report-grievance">
+          <div class="tile-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="tile-content">
+            <h3>Report Impending Disaster / Grievance</h3>
+            <p>Floodwater entering street? Fallen 11kV live power line? Gas leak? Submit grievance with GPS location & camera photo.</p>
+          </div>
+          <button class="tile-btn">Report Hazard Now &rarr;</button>
+        </div>
+
+        <div class="action-tile tile-blue" id="tile-open-map">
+          <div class="tile-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+          </div>
+          <div class="tile-content">
+            <h3>Live Hazard Map & Open Relief Shelters</h3>
+            <p>View interactive map with pinned hazard zones, high-ground shelters with free bed capacity, and evacuation routes.</p>
+          </div>
+          <button class="tile-btn">View Live Map &rarr;</button>
+        </div>
+
+        <div class="action-tile tile-green" id="tile-learn-disasters">
+          <div class="tile-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          </div>
+          <div class="tile-content">
+            <h3>Disaster Learning & Survival Protocols</h3>
+            <p>Explore survival DOs & DON'Ts for Floods, Cyclones, Earthquakes, Fires, and family emergency Go-Bag checklists.</p>
+          </div>
+          <button class="tile-btn">Explore Learning &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Live Operations Metrics Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon icon-amber">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Public Grievances</span>
+            <strong class="stat-value" id="stat-total-complaints">4</strong>
+            <span class="stat-sub"><span id="stat-action-complaints">3</span> Teams In Action</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon icon-blue">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">High-Ground Shelters</span>
+            <strong class="stat-value" id="stat-open-shelters">5</strong>
+            <span class="stat-sub"><span id="stat-sheltered-count">3,420</span> Citizens Sheltered</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon icon-green">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Rescue Teams Deployed</span>
+            <strong class="stat-value" id="stat-rescue-teams">194</strong>
+            <span class="stat-sub">NDRF, Fire, Drainage, Power</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon icon-purple">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Response Departments</span>
+            <strong class="stat-value" id="stat-departments-count">7</strong>
+            <span class="stat-sub"><span id="stat-resolution-rate">25%</span> Resolved Rate</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Grievance Tracking Bar -->
+      <div class="tracker-hero-bar">
+        <div class="tracker-intro">
+          <h3>Track Your Disaster Grievance / Complaint ID</h3>
+          <p>Enter your Complaint Reference ID (e.g. <code>GRV-2026-101</code>) to see live on-ground team dispatch and resolution status:</p>
+        </div>
+        <div class="tracker-search-wrap">
+          <input type="text" id="quick-track-input" placeholder="Enter Complaint ID (e.g. GRV-2026-101)">
+          <button id="quick-track-btn" class="btn btn-primary">Track Grievance Status &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Live Two-Col: Recent Hazards & Shelters List -->
+      <div class="two-col-layout">
+        <div class="col-panel">
+          <div class="panel-header">
+            <h3>Recent Public Disaster Grievances</h3>
+            <button class="btn btn-sm btn-outline" id="dash-view-all-complaints">View All Reports</button>
+          </div>
+          <div id="dash-complaints-list" class="dash-list"></div>
+        </div>
+
+        <div class="col-panel">
+          <div class="panel-header">
+            <h3>Active High-Ground Relief Shelters</h3>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-sm btn-primary" id="open-add-shelter-modal-btn">+ Add Shelter</button>
+              <button class="btn btn-sm btn-outline" id="dash-view-shelters-map">Open Map & Navigation</button>
+            </div>
+          </div>
+          <div id="dash-shelters-list" class="dash-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 2: LIVE DISASTER & SHELTER MAP
+         ===================================================================== -->
+    <section id="map-tab" class="tab-pane">
+      <div class="section-header-row">
+        <div>
+          <h2>Live Public Disaster & High-Ground Relief Map</h2>
+          <p class="section-desc">Interactive geographic overview of reported disaster hazards, open relief camps, emergency hospitals, and safe evacuation corridors.</p>
+        </div>
+        <div class="map-controls-bar">
+          <div class="badge-legend">
+            <span class="legend-dot red"></span> Critical Threat
+            <span class="legend-dot orange"></span> High Alert
+            <span class="legend-dot blue"></span> Open Safe Shelter
+            <span class="legend-dot green"></span> Hazard Resolved
+          </div>
+          <button id="map-use-gps-btn" class="btn btn-outline" title="Detect your exact live GPS location">
+            📍 Use My Live GPS
+          </button>
+          <button id="map-find-nearest-shelter-btn" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+            Find Nearest Safe Shelter & Route
+          </button>
+          <button id="map-report-here-btn" class="btn btn-danger">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Pin Hazard at Location
+          </button>
+        </div>
+      </div>
+
+      <div class="map-layout-grid">
+        <div class="map-display-card">
+          <div id="disaster-leaflet-map" class="leaflet-map-element"></div>
+        </div>
+
+        <div class="map-sidebar-card" id="map-point-inspector">
+          <div class="inspector-badge" id="map-inspect-type">SELECTED DISASTER INCIDENT</div>
+          <h3 id="map-inspect-title">Velachery Flash Flood Inundation</h3>
+          <p id="map-inspect-desc">Water level over 4.5 feet trapping residents. Inflatable rescue boats deployed.</p>
+
+          <div class="inspector-details-list">
+            <div class="meta-item">
+              <strong>Location:</strong> <span id="map-inspect-loc">Velachery Bypass Road, Ward 114</span>
+            </div>
+            <div class="meta-item">
+              <strong>Assigned Department:</strong> <span id="map-inspect-dept">DEP-NDRF (National Disaster Response Force)</span>
+            </div>
+            <div class="meta-item">
+              <strong>Incident Officer:</strong> <span id="map-inspect-officer">Commander Rajesh Varma (+91 98765 00002)</span>
+            </div>
+            <div class="meta-item">
+              <strong>Operational Status:</strong> <span id="map-inspect-status" class="badge-danger">TEAMS DISPATCHED</span>
+            </div>
+          </div>
+
+          <button id="map-inspect-action-btn" class="btn btn-outline btn-block mt-3">Navigate to Nearest Relief Shelter</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 3: REPORT & TRACK PUBLIC GRIEVANCES
+         ===================================================================== -->
+    <section id="complaints-tab" class="tab-pane">
+      <div class="section-header-row">
+        <div>
+          <h2>Public Disaster Grievance & Hazard Reporting Center</h2>
+          <p class="section-desc">Report any imminent disaster hazard (floods, gas leaks, electrical sparking, structural damage) for immediate department dispatch, or track an existing complaint.</p>
+        </div>
+        <div class="section-actions">
+          <button id="open-new-grievance-btn" class="btn btn-danger">+ File Emergency Disaster Grievance</button>
+        </div>
+      </div>
+
+      <!-- Grievance Live Status Tracker Display -->
+      <div id="live-tracker-result-card" class="tracker-result-card hidden">
+        <div class="tracker-header">
+          <div>
+            <span class="badge-accent" id="track-res-id">GRV-2026-101</span>
+            <h3 id="track-res-title">Flash Flood Inundation Trapping 40+ Families</h3>
+            <span class="track-loc-sub" id="track-res-location">Velachery Bypass Road, Chennai South (Ward 114)</span>
+          </div>
+          <button class="btn btn-sm btn-ghost" id="track-close-btn">&times; Close Tracker</button>
+        </div>
+
+        <!-- 5-Step Stepper -->
+        <div class="progress-stepper">
+          <div class="step-item step-completed" id="step-1">
+            <div class="step-circle">1</div>
+            <div class="step-label">Reported by Citizen</div>
+          </div>
+          <div class="step-line active" id="line-1"></div>
+          <div class="step-item step-completed" id="step-2">
+            <div class="step-circle">2</div>
+            <div class="step-label">Verified by DMOC</div>
+          </div>
+          <div class="step-line active" id="line-2"></div>
+          <div class="step-item step-completed" id="step-3">
+            <div class="step-circle">3</div>
+            <div class="step-label">Assigned to Department</div>
+          </div>
+          <div class="step-line active" id="line-3"></div>
+          <div class="step-item step-active" id="step-4">
+            <div class="step-circle">4</div>
+            <div class="step-label">Rescue Teams In Action</div>
+          </div>
+          <div class="step-line" id="line-4"></div>
+          <div class="step-item" id="step-5">
+            <div class="step-circle">5</div>
+            <div class="step-label">Hazard Cleared & Safe</div>
+          </div>
+        </div>
+
+        <div class="tracker-details-box">
+          <div class="tracker-dept-info">
+            <strong>Assigned Response Force:</strong> <span id="track-res-dept">DEP-NDRF (National & State Disaster Response Force)</span><br>
+            <strong>Incident Commander:</strong> <span id="track-res-officer">Commander Rajesh Varma</span> (<span id="track-res-phone">+91 98765 00002</span>)<br>
+            <strong>On-Ground Status Notes:</strong> <span id="track-res-notes" style="color: #60a5fa;">Inflatable rescue boats deployed; evacuation towards Anna University Shelter underway.</span>
+          </div>
+          <div id="track-feedback-action-wrap" class="hidden">
+            <button class="btn btn-success btn-sm" id="track-leave-feedback-btn">Rate Department Response ⭐</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grievance Filters -->
+      <div class="grievance-filters">
+        <button class="pill-btn active" data-filter="ALL">All Reports (<span id="count-all-grv">4</span>)</button>
+        <button class="pill-btn" data-filter="TEAMS_DISPATCHED">Teams Dispatched</button>
+        <button class="pill-btn" data-filter="ASSIGNED">Assigned</button>
+        <button class="pill-btn" data-filter="VERIFIED">Verified</button>
+        <button class="pill-btn" data-filter="RESOLVED">Resolved & Cleared</button>
+      </div>
+
+      <!-- Grievances Grid -->
+      <div id="complaints-list-grid" class="complaints-grid"></div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 4: RESPONSE DEPARTMENTS & DISASTER UNITS
+         ===================================================================== -->
+    <section id="departments-tab" class="tab-pane">
+      <div class="section-header-row">
+        <div>
+          <h2>Disaster Response Departments & Emergency Units</h2>
+          <p class="section-desc">Coordinated multi-agency emergency forces: NDRF, Fire & Rescue, Storm Drainage, Electricity Board, PWD Highways, Emergency Medical, and Police.</p>
+        </div>
+        <div class="section-actions">
+          <button id="open-add-dept-modal-btn" class="btn btn-outline admin-only">+ Add Department</button>
+          <button id="admin-broadcast-siren-btn" class="btn btn-danger admin-only">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Broadcast Public Siren & Red Alert
+          </button>
+        </div>
+      </div>
+
+      <!-- Department Responder Filter Banner -->
+      <div id="dept-officer-banner" class="officer-desk-banner hidden">
+        <div class="officer-banner-content">
+          <span class="officer-badge">DEPARTMENT RESPONDER DESK</span>
+          <h3>Logged in as: <span id="officer-dept-name">NDRF Response Force</span></h3>
+          <p>Showing public grievances assigned to your jurisdiction. You can acknowledge tickets, dispatch on-ground teams, and mark hazards resolved.</p>
+        </div>
+        <button class="btn btn-sm btn-outline" id="officer-view-my-tickets-btn">Filter My Department Tickets</button>
+      </div>
+
+      <!-- Departments Directory Cards Grid -->
+      <div id="departments-cards-grid" class="departments-grid"></div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 5: PUBLIC DISASTER LEARNING & SURVIVAL ENCYCLOPEDIA
+         ===================================================================== -->
+    <section id="learning-tab" class="tab-pane">
+      <div class="section-header-row">
+        <div>
+          <h2>Public Disaster Survival Encyclopedia & Guidelines</h2>
+          <p class="section-desc">Verified life-saving survival instructions for families and citizens during Floods, Cyclones, Earthquakes, Fires, Gas Leaks, and Landslides.</p>
+        </div>
+        <div class="section-actions">
+          <div class="search-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="learn-search-input" placeholder="Search flood, cyclone, earthquake, fire...">
+          </div>
+          <button class="btn btn-primary admin-only" id="open-add-module-modal-btn">+ Add Survival Guide</button>
+        </div>
+      </div>
+
+      <!-- Interactive 72-Hour Family Go-Bag Checklist Banner -->
+      <div class="gobag-checklist-card">
+        <div class="gobag-header">
+          <div class="gobag-icon">🎒</div>
+          <div>
+            <h3>Essential 72-Hour Family Emergency Disaster Kit ("Go-Bag")</h3>
+            <p>Every household should keep these life-saving items packed in a waterproof backpack ready for immediate evacuation:</p>
+          </div>
+        </div>
+        <div class="gobag-items-grid">
+          <label class="gobag-check"><input type="checkbox" checked> <span>High-beam waterproof LED torch & spare batteries</span></label>
+          <label class="gobag-check"><input type="checkbox" checked> <span>Battery-powered portable radio for government bulletins</span></label>
+          <label class="gobag-check"><input type="checkbox" checked> <span>Purified bottled drinking water (3 liters per person)</span></label>
+          <label class="gobag-check"><input type="checkbox" checked> <span>Non-perishable high-protein dry food & biscuits</span></label>
+          <label class="gobag-check"><input type="checkbox" checked> <span>Waterproof pouch for Aadhaar/IDs, property deeds & cash</span></label>
+          <label class="gobag-check"><input type="checkbox" checked> <span>Essential prescription medications & First Aid kit</span></label>
+          <label class="gobag-check"><input type="checkbox"> <span>Chlorine water purification drops / tablets</span></label>
+          <label class="gobag-check"><input type="checkbox"> <span>High-decibel emergency signaling whistle</span></label>
+          <label class="gobag-check"><input type="checkbox"> <span>Mobile power bank with waterproof charging cables</span></label>
+          <label class="gobag-check"><input type="checkbox"> <span>Warm dry clothes, rain poncho & sturdy footwear</span></label>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="category-pills">
+        <button class="pill-btn active" data-cat="ALL">All Disaster Survival Guides</button>
+        <button class="pill-btn" data-cat="NATURAL">Natural Disasters (Floods, Cyclones, Quakes)</button>
+        <button class="pill-btn" data-cat="MAN_MADE">Man-Made Hazards (Fires, Gas Leaks, Stampedes)</button>
+      </div>
+
+      <!-- Learning Modules Grid -->
+      <div id="modules-grid" class="cards-grid"></div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 6: SAFETY CERTIFICATION & CITIZEN QUIZ
+         ===================================================================== -->
+    <section id="quizzes-tab" class="tab-pane">
+      <div class="section-header-row">
+        <div>
+          <h2>Public Disaster Preparedness Evaluation & Certification</h2>
+          <p class="section-desc">Test your family's disaster preparedness knowledge across cyclone safety, flood evacuation, and fire rescue. Earn an official Citizen Safety Certificate.</p>
+        </div>
+      </div>
+
+      <div class="quiz-container-layout">
+        <div id="quiz-list-view" class="quiz-selection-cards"></div>
+
+        <div id="quiz-runner-view" class="quiz-runner-card hidden">
+          <div class="quiz-runner-header">
+            <div>
+              <span class="badge-accent" id="runner-quiz-category">CITIZEN DISASTER CERTIFICATION</span>
+              <h3 id="runner-quiz-title">Public Disaster Preparedness & Survival Examination</h3>
+            </div>
+            <div class="quiz-timer-badge">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span id="quiz-timer">05:00</span>
+            </div>
+          </div>
+
+          <div class="quiz-progress-bar-wrap">
+            <div id="quiz-progress-fill" class="quiz-progress-bar" style="width: 20%;"></div>
+          </div>
+          <div class="quiz-progress-label">Question <span id="curr-q-num">1</span> of <span id="total-q-num">5</span></div>
+
+          <div class="quiz-question-body">
+            <h4 id="question-text">If you smell a strong LPG cooking gas leak inside your home, what is the most critical rule?</h4>
+            <div id="options-container" class="quiz-options-list"></div>
+          </div>
+
+          <div class="quiz-runner-footer">
+            <button id="quiz-prev-btn" class="btn btn-ghost">Previous</button>
+            <button id="quiz-next-btn" class="btn btn-primary">Next Question &rarr;</button>
+            <button id="quiz-submit-btn" class="btn btn-success hidden">Submit Exam & Generate Certificate</button>
+          </div>
+        </div>
+
+        <div class="certificates-award-section">
+          <h3>Your Verified Citizen Safety Credentials</h3>
+          <p class="section-sub">Public certificates issued under State Disaster Management Authority guidelines.</p>
+          <div id="my-certificates-list" class="certificates-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 7: 24/7 AI DISASTER EMERGENCY ADVISOR
+         ===================================================================== -->
+    <section id="ai-tab" class="tab-pane">
+      <div class="ai-chat-layout">
+        <div class="ai-chat-sidebar">
+          <div class="ai-sidebar-header">
+            <div class="ai-avatar-pulse">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 1 10 10c0 5.5-4.5 10-10 10S2 17.5 2 12A10 10 0 0 1 12 2z"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <div>
+              <h3>Disaster AI Advisor</h3>
+              <span class="status-online">24/7 Online & Ready</span>
+            </div>
+          </div>
+
+          <div class="ai-prompt-shortcuts">
+            <h4>Quick Public Disaster Questions</h4>
+            <button class="prompt-chip" data-prompt="What should I do immediately during a flash flood entering my home?">Flash Flood Entering Home</button>
+            <button class="prompt-chip" data-prompt="How do I safely handle an LPG cooking gas leak without explosion?">LPG Gas Cylinder Leak Safety</button>
+            <button class="prompt-chip" data-prompt="What is the proper technique for Drop, Cover, and Hold during an earthquake?">Earthquake Drop, Cover & Hold</button>
+            <button class="prompt-chip" data-prompt="How do I locate the nearest High-Ground Relief Shelter and report a hazard?">Find Nearest Shelter & File Grievance</button>
+            <button class="prompt-chip" data-prompt="How do I perform CPR and stop heavy bleeding before ambulance arrives?">Emergency First Aid & CPR</button>
+          </div>
+
+          <div class="ai-emergency-box">
+            <h4>Direct Emergency Dispatch Hotlines</h4>
+            <div class="hotline-pill"><span>Unified Emergency</span> <strong>112</strong></div>
+            <div class="hotline-pill"><span>Disaster (NDRF)</span> <strong>108 / 1070</strong></div>
+            <div class="hotline-pill"><span>Fire & Rescue</span> <strong>101</strong></div>
+            <div class="hotline-pill"><span>Flood Drainage</span> <strong>1913</strong></div>
+          </div>
+        </div>
+
+        <div class="ai-chat-main">
+          <div class="chat-messages-container" id="chat-messages">
+            <div class="chat-message bot">
+              <div class="msg-bubble">
+                <p>Namaste! I am the <strong>SafePublic Emergency & Disaster Response AI Advisor</strong>. I can assist you with immediate survival steps for Floods, Cyclones, Fires, Gas Leaks, Earthquakes, filing a hazard grievance, or navigating to an open high-ground shelter. What is your emergency?</p>
+                <div class="msg-meta">Disaster AI • Just now</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-input-bar">
+            <input type="text" id="chat-input" placeholder="Type your disaster emergency or survival question here..." autocomplete="off">
+            <button id="chat-send-btn" class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              <span>Ask AI</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       MODALS FOR REAL WEBSITE CRUD
+       ===================================================================== -->
+
+  <!-- Modal 1: File Emergency Disaster Grievance with REAL Camera / Photo Upload -->
+  <div id="modal-report-hazard" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Report Public Disaster Hazard / Grievance</h3>
+        <button class="modal-close" data-close="modal-report-hazard">&times;</button>
+      </div>
+      <form id="form-report-hazard" class="modal-form">
+        <div class="form-group">
+          <label for="rep-category">Disaster Hazard Category *</label>
+          <select id="rep-category" required>
+            <option value="Flash Flood & Inundation">Flash Flood / Severe Waterlogging</option>
+            <option value="Electrical Hazard & Downed Lines">Electrical Hazard (Submerged/Sparking Transformer, Downed High-Voltage Wire)</option>
+            <option value="Storm Drain & Culvert Blockage">Storm Drainage Choked / Canal Breach</option>
+            <option value="Fire Outbreak & Gas Leak">Fire Outbreak / LPG Gas Cylinder Leak / Chemical Spills</option>
+            <option value="Structural Damage & Bridge Crack">Structural Collapse Risk (Bridge Pillar Crack, Wall Collapse)</option>
+            <option value="Landslide & Mudflow">Landslide / Rockfall Blocking Road</option>
+            <option value="Dam Overflow Warning">Dam / Reservoir Water Discharge Threat</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="rep-priority">Threat Urgency Level *</label>
+          <select id="rep-priority">
+            <option value="IMMEDIATE_THREAT" selected>Immediate Life Threat (Citizens Trapped / Immediate Danger)</option>
+            <option value="HIGH_ALERT">High Alert (Severe Risk Developing Rapidly)</option>
+            <option value="ADVISORY">Advisory / Precautionary Hazard</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="rep-title">Incident Title *</label>
+          <input type="text" id="rep-title" required placeholder="e.g. Flash Flood Water (4 Feet) Trapping Families on Main Road">
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="rep-district">District / Zone *</label>
+            <input type="text" id="rep-district" required placeholder="e.g. Chennai South">
+          </div>
+          <div class="form-group">
+            <label for="rep-ward">Ward Number</label>
+            <input type="text" id="rep-ward" placeholder="e.g. Ward 114">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="rep-location">Detailed Street Location & Landmark *</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="rep-location" required placeholder="e.g. Velachery Bypass Road, near Guru Nanak College" style="flex: 1;">
+            <button type="button" id="form-gps-autofill-btn" class="btn btn-outline btn-sm" title="Detect GPS and auto-fill address">📍 My GPS</button>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="rep-lat">Map Latitude</label>
+            <input type="number" step="any" id="rep-lat" value="12.9759">
+          </div>
+          <div class="form-group">
+            <label for="rep-lng">Map Longitude</label>
+            <input type="number" step="any" id="rep-lng" value="80.2212">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="rep-description">Detailed Incident Description *</label>
+          <textarea id="rep-description" rows="3" required placeholder="Explain how deep the water is, number of citizens affected, access roads cut off, need for rescue boats..."></textarea>
+        </div>
+
+        <!-- Real Camera & File Upload Section -->
+        <div class="form-group">
+          <label>Attach Real Disaster Photo (Camera or Device Storage)</label>
+          <div class="upload-dropzone" id="upload-dropzone">
+            <input type="file" id="rep-file-input" accept="image/*" capture="environment">
+            <div id="upload-prompt" class="upload-prompt">
+              <span>📷 Click or Tap to Take Photo / Choose File</span>
+            </div>
+            <div id="upload-preview-wrap" class="upload-preview-wrap hidden">
+              <img id="upload-preview-img" src="" alt="Hazard Preview">
+              <span id="upload-filename-label" class="upload-filename"></span>
+            </div>
+          </div>
+          <input type="hidden" id="rep-image" value="https://images.unsplash.com/photo-1547683905-f686c993aae5?w=500">
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="rep-citizen-name">Reporter Name *</label>
+            <input type="text" id="rep-citizen-name" required value="Aarav Patel">
+          </div>
+          <div class="form-group">
+            <label for="rep-contact-phone">Contact Mobile Number (for SMS Tracking Updates) *</label>
+            <input type="tel" id="rep-contact-phone" required value="+91 98765 00001">
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close="modal-report-hazard">Cancel</button>
+          <button type="submit" class="btn btn-danger">Submit Grievance to Disaster Command</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Add Real Relief Shelter -->
+  <div id="modal-add-shelter" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add Real Public Relief Shelter & Camp</h3>
+        <button class="modal-close" data-close="modal-add-shelter">&times;</button>
+      </div>
+      <form id="form-add-shelter" class="modal-form">
+        <div class="form-group">
+          <label for="shl-name">Shelter / Camp Name *</label>
+          <input type="text" id="shl-name" required placeholder="e.g. Community Welfare Hall High-Ground Camp">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="shl-district">District / Zone *</label>
+            <input type="text" id="shl-district" required placeholder="e.g. Chennai Central">
+          </div>
+          <div class="form-group">
+            <label for="shl-capacity">Total Bed Capacity *</label>
+            <input type="number" id="shl-capacity" required value="1500">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="shl-address">Full Street Address *</label>
+          <input type="text" id="shl-address" required placeholder="e.g. 42 Perambur Barracks Road">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="shl-lat">Latitude *</label>
+            <input type="number" step="any" id="shl-lat" required value="13.0850">
+          </div>
+          <div class="form-group">
+            <label for="shl-lng">Longitude *</label>
+            <input type="number" step="any" id="shl-lng" required value="80.2500">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="shl-facilities">Available Facilities (Food, Water, Medical, Generators) *</label>
+          <input type="text" id="shl-facilities" required value="Hot Meals, Filtered Water, 24/7 Medical Clinic, Standby Power Inverter">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="shl-officer">Shelter In-Charge Officer *</label>
+            <input type="text" id="shl-officer" required placeholder="e.g. Officer K. Muthu">
+          </div>
+          <div class="form-group">
+            <label for="shl-phone">Contact Phone *</label>
+            <input type="tel" id="shl-phone" required placeholder="e.g. +91 98401 99887">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close="modal-add-shelter">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Relief Shelter & Plot on Map</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Add Emergency Response Department -->
+  <div id="modal-add-department" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Register Emergency Response Department</h3>
+        <button class="modal-close" data-close="modal-add-department">&times;</button>
+      </div>
+      <form id="form-add-department" class="modal-form">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="dept-code">Department Code *</label>
+            <input type="text" id="dept-code" required placeholder="e.g. CIVIL_DEFENCE">
+          </div>
+          <div class="form-group">
+            <label for="dept-units">Active Rescue Teams *</label>
+            <input type="number" id="dept-units" required value="15">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="dept-name">Full Department Name *</label>
+          <input type="text" id="dept-name" required placeholder="e.g. State Coastal Guard & Marine Rescue">
+        </div>
+        <div class="form-group">
+          <label for="dept-jurisdiction">Operational Jurisdiction & Tasks *</label>
+          <textarea id="dept-jurisdiction" rows="2" required placeholder="e.g. Deep sea rescue, coastal high-tide evacuations, fishing boat recovery..."></textarea>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="dept-officer">Assigned Commander / Officer *</label>
+            <input type="text" id="dept-officer" required placeholder="e.g. Capt. Sandeep Menon">
+          </div>
+          <div class="form-group">
+            <label for="dept-helpline">Emergency Toll-Free Helpline *</label>
+            <input type="text" id="dept-helpline" required placeholder="e.g. 1554">
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="dept-phone">Officer Phone</label>
+            <input type="tel" id="dept-phone" value="+91 98765 44332">
+          </div>
+          <div class="form-group">
+            <label for="dept-email">Official Email</label>
+            <input type="email" id="dept-email" value="marine.rescue@gov.in">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close="modal-add-department">Cancel</button>
+          <button type="submit" class="btn btn-primary">Register Emergency Force</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Author Survival Guide -->
+  <div id="modal-add-module" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Publish Public Disaster Survival Guide</h3>
+        <button class="modal-close" data-close="modal-add-module">&times;</button>
+      </div>
+      <form id="form-add-module" class="modal-form">
+        <div class="form-group">
+          <label for="mod-name">Disaster Title *</label>
+          <input type="text" id="mod-name" required placeholder="e.g. Tsunami Safety & High-Tide Coastal Escape">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="mod-cat">Disaster Category *</label>
+            <select id="mod-cat">
+              <option value="NATURAL">Natural Disaster</option>
+              <option value="MAN_MADE">Man-Made / Industrial Hazard</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="mod-type">Format</label>
+            <select id="mod-type">
+              <option value="TUTORIAL">Interactive Tutorial</option>
+              <option value="GUIDELINE">Safety Guideline</option>
+              <option value="VIDEO">Video Protocol</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="mod-summary">Short Executive Summary *</label>
+          <input type="text" id="mod-summary" required placeholder="e.g. Life-saving steps to escape high-tide tsunami surges within 10 minutes.">
+        </div>
+        <div class="form-group">
+          <label for="mod-desc">Detailed Survival Instructions *</label>
+          <textarea id="mod-desc" rows="3" required placeholder="Full survival protocol for families and public..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="mod-dos">Key DOs (one per line)</label>
+          <textarea id="mod-dos" rows="2" placeholder="Move 2 km inland or 30 meters above sea level&#10;Abandon cars and walk uphill&#10;Listen strictly to coastal siren towers"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="mod-donts">Key DONTs (one per line)</label>
+          <textarea id="mod-donts" rows="2" placeholder="DO NOT go to the shore to watch receding sea waters&#10;DO NOT stay in beachfront structures"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="mod-equip">Emergency Equipment Needed</label>
+          <input type="text" id="mod-equip" value="Life Jacket, Waterproof Flashlight, Whistle, First Aid Kit">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close="modal-add-module">Cancel</button>
+          <button type="submit" class="btn btn-primary">Publish Guide to Public Portal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 5: Admin Siren Broadcast -->
+  <div id="modal-broadcast-alert" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Broadcast Public Siren & Emergency Alert</h3>
+        <button class="modal-close" data-close="modal-broadcast-alert">&times;</button>
+      </div>
+      <form id="form-broadcast-alert" class="modal-form">
+        <div class="form-group">
+          <label for="alt-title">Alert Title *</label>
+          <input type="text" id="alt-title" required placeholder="e.g. RED ALERT: CYCLONE 'VARUNA' EVACUATION ORDER">
+        </div>
+
+        <div class="form-group">
+          <label for="alt-severity">Siren Urgency *</label>
+          <select id="alt-severity">
+            <option value="CRITICAL" selected>CRITICAL (RED ALERT) - Immediate Public Evacuation</option>
+            <option value="HIGH">HIGH (ORANGE WARNING) - Severe Threat Impending</option>
+            <option value="MODERATE">MODERATE (YELLOW ADVISORY) - Preparedness Watch</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="alt-type">Disaster Type *</label>
+          <select id="alt-type">
+            <option value="CYCLONE">Severe Cyclonic Storm & Surge</option>
+            <option value="FLOOD">Flash Flood & River Breach</option>
+            <option value="TSUNAMI">Coastal Tsunami Warning</option>
+            <option value="EARTHQUAKE">Major Seismic Tremor</option>
+            <option value="FIRE">Large Scale Chemical / Fire Disaster</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="alt-message">Public Safety Instructions *</label>
+          <textarea id="alt-message" rows="3" required placeholder="State exact instructions: Evacuate immediately to high ground shelters, avoid coastal roads, disconnect gas mains..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close="modal-broadcast-alert">Cancel</button>
+          <button type="submit" class="btn btn-danger">Broadcast Public Siren Now</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 6: Printable Certificate -->
+  <div id="modal-certificate" class="modal-backdrop hidden">
+    <div class="modal-card certificate-modal-card">
+      <div class="modal-header no-print">
+        <h3>Official Disaster Safety Certificate</h3>
+        <button class="modal-close" data-close="modal-certificate">&times;</button>
+      </div>
+      <div id="printable-certificate" class="certificate-paper">
+        <div class="cert-border-outer">
+          <div class="cert-border-inner">
+            <div class="cert-header">
+              <div class="cert-seal">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <h2 class="cert-org">STATE DISASTER MANAGEMENT AUTHORITY</h2>
+              <span class="cert-dept">National Disaster Preparedness & Citizen Safety Council</span>
+              <h1 class="cert-title">CITIZEN DISASTER PREPAREDNESS CERTIFICATION</h1>
+              <p class="cert-intro">This is to officially recognize that</p>
+            </div>
+
+            <div class="cert-recipient" id="cert-recipient-name">Aarav Patel</div>
+
+            <p class="cert-body">
+              has demonstrated exemplary understanding of public disaster preparedness, emergency Go-Bag management, cyclone evasion, and flood safety protocols in accordance with National Disaster Management Authority (NDMA) benchmarks, scoring a certified distinction of <strong id="cert-score-percentage">100%</strong>.
+            </p>
+
+            <div class="cert-signatures">
+              <div class="cert-sig-block">
+                <div class="sig-line">Commander Rajesh Varma</div>
+                <span>NDRF Disaster Field Command</span>
+              </div>
+              <div class="cert-id-badge">
+                <span class="cert-id-label">Official Credential ID</span>
+                <strong id="cert-display-id">PUB-CERT-2026-9021</strong>
+              </div>
+              <div class="cert-sig-block">
+                <div class="sig-line">Dr. K. Radhakrishnan (IAS)</div>
+                <span>State Relief Commissioner</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions no-print">
+        <button class="btn btn-outline" data-close="modal-certificate">Close</button>
+        <button class="btn btn-primary" onclick="window.print()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print / Save Certificate PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Leaflet Map Script -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>
